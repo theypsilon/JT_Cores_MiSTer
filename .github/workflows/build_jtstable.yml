@@ -1,0 +1,42 @@
+name: Build JTSTABLE Database
+
+on:
+  schedule:
+  - cron:  "*/20 * * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Gather Files
+      run: ./.github/gather_files.sh 'delme' 'registry.txt'
+      env:
+        DB_ID: jt
+        DB_URL: https://raw.githubusercontent.com/theypsilon/JT_Cores_MiSTer/jtstable/jtstabledb.json.zip
+        REPOSITORY_URL: https://github.com/JTFPGA/JTSTABLE
+        BASE_FILES_URL: https://raw.githubusercontent.com/JTFPGA/JTSTABLE/%s/
+        LATEST_ZIP_URL: https://github.com/theypsilon/JT_Cores_MiSTer/archive/refs/heads/jtstable.zip
+
+    - name: Calculate Database
+      run: |
+        set -euo pipefail
+        git config --global user.email "theypsilon@gmail.com"
+        git config --global user.name "The CI/CD Bot"
+        cd delme
+        SHA=$(git rev-parse --verify HEAD)
+        TIME=$(git log -1 --format=%cd --date=format:'%Y/%m/%d %H:%M:%S')
+        cd ..
+        ./.github/calculate_db.py "${SHA}" "${TIME}"
+      env:
+        HEADER: JTSTABLE
+        DB_ID: jtcores
+        FOLDER: delme
+        REGISTRY: registry.txt
+        BRANCH: jtstable
+        DB_URL: https://raw.githubusercontent.com/theypsilon/JT_Cores_MiSTer/jtstable/jtstabledb.json.zip
+        BASE_FILES_URL: https://raw.githubusercontent.com/JTFPGA/JTSTABLE/%s/
+        LATEST_ZIP_URL: https://github.com/theypsilon/JT_Cores_MiSTer/archive/refs/heads/jtstable.zip
