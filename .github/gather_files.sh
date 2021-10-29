@@ -61,7 +61,7 @@ update_distribution() {
 
 CORE_URLS=
 fetch_core_urls() {
-    CORE_URLS=$(curl -sSLf "$1/wiki"| awk '/wiki-content/,/wiki-rightbar/' | grep -ioE "$1/[a-zA-Z0-9./_-]*")
+    CORE_URLS=$(curl -sSLf "$1/wiki"| awk '/wiki-body/,/wiki-rightbar/' | grep -ioE "$1/[a-zA-Z0-9./_-]*")
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]] ; then
