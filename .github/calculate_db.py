@@ -62,7 +62,9 @@ def create_db(options):
         "time": options['time'],
         "files": dict(),
         "zips": dict(),
-        "base_files_url": ""
+        "base_files_url": "",
+        "default_options": dict(),
+        "timestamp": int(time.time())
     }
 
     delete_list_regex = re.compile("^(.*_)[0-9]{8}(\.[a-zA-Z0-9]+)*$", )
