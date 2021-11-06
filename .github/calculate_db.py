@@ -13,7 +13,7 @@ from datetime import datetime
 import os
 import tempfile
 
-def main(sha, time):
+def main(sha):
     print('sha: %s' % sha)
 
     folder = envvar('FOLDER')
@@ -33,14 +33,42 @@ def main(sha, time):
         'db_files': [db_file_zip],
         'db_id': db_id,
         'header': header,
-        'time': time,
         'folder': folder,
         'latest_zip_url': envvar('LATEST_ZIP_URL'),
         'linux_github_repository': os.getenv('LINUX_GITHUB_REPOSITORY', '').strip()
     })
 
-    save_data_to_compressed_json(db, db_file_json, db_file_zip)
-    force_push_file(db_file_zip, branch)
+    old_db = get_db_from_db_url(db_url)
+    if dbs_are_different(db, old_db):
+        save_data_to_compressed_json(db, db_file_json, db_file_zip)
+        force_push_file(db_file_zip, branch)
+    else:
+        print("No change needed.")
+
+def get_db_from_db_url(db_url):
+    with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
+        print('Downloading %s to %s' % (db_url, tmp_file.name))
+        run_successfully('curl --show-error --fail --location -o %s %s' % (tmp_file.name, db_url))
+        json_str = run_stdout("unzip -p %s" % tmp_file.name)
+        return json.loads(json_str)
+
+def dbs_are_different(input_db1, input_db2):
+    db1 = input_db1.copy()
+    db2 = input_db2.copy()
+    db1["timestamp"] = 0
+    db2["timestamp"] = 0
+    str1 = json.dumps(db1, sort_keys=True)
+    str2 = json.dumps(db2, sort_keys=True)
+
+    print()
+    print('str1:')
+    print(str1)
+    print()
+    print('str2:')
+    print(str2)
+    print()
+
+    return str1 != str2
 
 def envvar(var):
     result = os.getenv(var)
@@ -59,7 +87,6 @@ def create_db(options):
         "db_url": options['db_url'],
         "db_files": options['db_files'],
         "latest_zip_url": options['latest_zip_url'],
-        "time": options['time'],
         "files": dict(),
         "zips": dict(),
         "base_files_url": "",
@@ -160,12 +187,9 @@ def force_push_file(file_name, branch):
     run_succesfully('git add %s' % file_name)
     run_succesfully('git commit -m "-"')
     run_succesfully('git fetch origin')
-    if not run_conditional('git diff --exit-code %s origin/%s' % (branch, branch)):
-        run_succesfully('git push --force origin %s' % branch)
-        print()
-        print("New %s ready to be used." % file_name)
-    else:
-        print("No change needed.")
+    run_succesfully('git push --force origin %s' % branch)
+    print()
+    print("New %s ready to be used." % file_name)
 
 def run_conditional(command):
     result = subprocess.run(command, shell=True, stderr=subprocess.DEVNULL, stdout=subprocess.PIPE)
@@ -233,5 +257,19 @@ class Finder:
             else:
                 yield Path(entry.path)
 
+def run_successfully(command):
+    result = subprocess.run(command, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+
+    stdout = result.stdout.decode()
+    stderr = result.stderr.decode()
+    if stdout.strip():
+        print(stdout)
+
+    if stderr.strip():
+        print(stderr)
+
+    if result.returncode != 0:
+        raise Exception("subprocess.run %s Return Code was '%d'" % (command, result.returncode))
+
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1])

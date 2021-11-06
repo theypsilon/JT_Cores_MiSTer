@@ -28,9 +28,8 @@ jobs:
         git config --global user.name "The CI/CD Bot"
         cd delme
         SHA=$(git rev-parse --verify HEAD)
-        TIME=$(git log -1 --format=%cd --date=format:'%Y/%m/%d %H:%M:%S')
         cd ..
-        ./.github/calculate_db.py "${SHA}" "${TIME}"
+        ./.github/calculate_db.py "${SHA}"
       env:
         HEADER: JTSTABLE
         DB_ID: jtcores
