@@ -280,6 +280,7 @@ def copyjtcores():
     if new == old:
         return
     
+    subprocess.run(['git', 'checkout', '-f', 'jtstable'], stderr=subprocess.STDOUT)
     subprocess.run(['git', 'add', 'jtstabledb.json.zip'], stderr=subprocess.STDOUT)
     subprocess.run(['git', 'commit', '-m', '"-"'], stderr=subprocess.STDOUT)
     subprocess.run(['git', 'push', '--force', 'origin', 'jtstable'], stderr=subprocess.STDOUT)
