@@ -271,5 +271,11 @@ def run_successfully(command):
     if result.returncode != 0:
         raise Exception("subprocess.run %s Return Code was '%d'" % (command, result.returncode))
 
+def copyjtcores():
+    pass
+
 if __name__ == '__main__':
-    main(sys.argv[1])
+    if sys.argv[1] == '--copyjtcores':
+        copyjtcores()
+    else:
+        main(sys.argv[1])
