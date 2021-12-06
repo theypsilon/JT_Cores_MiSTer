@@ -274,9 +274,12 @@ def run_successfully(command):
 def copyjtcores():
     subprocess.run(['git', 'checkout', '-qf', '--orphan', 'jtstable'], stderr=subprocess.STDOUT)
     
+    print()
     new = download('https://raw.githubusercontent.com/jotego/jtcores_mister/main/jtbindb.json.zip', 'jtstabledb.json.zip')
+    print()
     old = download('https://raw.githubusercontent.com/theypsilon/JT_Cores_MiSTer/jtstable/jtstabledb.json.zip', 'temp')
     
+    print()
     print('new:')
     print(new)
     print()
@@ -293,6 +296,7 @@ def copyjtcores():
     subprocess.run(['git', 'push', '--force', 'origin', 'jtstable'], stderr=subprocess.STDOUT)
 
 def download(url, path):
+    print(url)
     subprocess.run(['curl', '-L', '-o', path, url], stderr=subprocess.STDOUT)
     stdout = subprocess.run(['unzip', '-p', '-o', path], stderr=subprocess.STDOUT, stdout=subprocess.PIPE).stdout.decode().strip()
     db = json.loads(stdout)
