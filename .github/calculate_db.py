@@ -272,7 +272,24 @@ def run_successfully(command):
         raise Exception("subprocess.run %s Return Code was '%d'" % (command, result.returncode))
 
 def copyjtcores():
-    pass
+    subprocess.run(['git', 'checkout', '-qf', '--orphan', 'jtstable'], stderr=subprocess.STDOUT)
+    
+    new = download('https://raw.githubusercontent.com/jotego/jtcores_mister/main/jtbindb.json.zip', 'jtstabledb.json.zip')
+    old = download('https://raw.githubusercontent.com/theypsilon/JT_Cores_MiSTer/jtstable/jtstabledb.json.zip', 'temp')
+    
+    if new == old:
+        return
+    
+    subprocess.run(['git', 'add', 'jtstabledb.json.zip'], stderr=subprocess.STDOUT)
+    subprocess.run(['git', 'commit', '-m', '"-"'], stderr=subprocess.STDOUT)
+    subprocess.run(['git', 'push', '--force', 'origin', 'jtstable'], stderr=subprocess.STDOUT)
+
+def download(url, path):
+    subprocess.run(['curl', '-L', '-o', path, url], stderr=subprocess.STDOUT)
+    stdout = subprocess.run(['unzip', '-p', '-o', path], stderr=subprocess.STDOUT, stdout=subprocess.PIPE).stdout.decode().strip()
+    db = json.loads(stdout)
+    db['timestamp'] = 0
+    return json.dumps(db)
 
 if __name__ == '__main__':
     if sys.argv[1] == '--copyjtcores':
