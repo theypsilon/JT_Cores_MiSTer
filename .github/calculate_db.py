@@ -277,6 +277,13 @@ def copyjtcores():
     new = download('https://raw.githubusercontent.com/jotego/jtcores_mister/main/jtbindb.json.zip', 'jtstabledb.json.zip')
     old = download('https://raw.githubusercontent.com/theypsilon/JT_Cores_MiSTer/jtstable/jtstabledb.json.zip', 'temp')
     
+    print('new:')
+    print(new)
+    print()
+    print('old:')
+    print(old)
+    print()
+    
     if new == old:
         return
     
