@@ -1,0 +1,20 @@
+name: Build JTSTABLE Database
+
+on:
+  schedule:
+  - cron:  "*/20 * * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Copy from jtcores
+      run: |
+        set -euo pipefail
+        git config --global user.email "theypsilon@gmail.com"
+        git config --global user.name "The CI/CD Bot"
+        ./.github/calculate_db.py --copyjtcores
